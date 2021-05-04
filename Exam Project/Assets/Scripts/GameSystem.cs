@@ -5,29 +5,52 @@ using UnityEngine.UI;
 
 public class GameSystem : MonoBehaviour
 {
+    public static GameSystem instance;
+
     [Header ("Game")]
-    public Transform contentObject;
+    public GameObject contentObject;
     private GameObject objectPrefab;
     public int objectCount;
-    private float waitTime = 0.0f;
+
+    public GameObject[] childObjects;
+
+    public GameObject object1;
+    public GameObject object2;
+
+    public GameObject blockPanel;
+
+    [Header ("Game Over")]
+    public GameObject winPanel;
+    public GameObject losePanel;
 
     [Header ("Timer")]
     public Text timerText;
     public bool isTimer;
     public float timer;
 
+    [Header ("Points")]
+    public int pointsGoal;
+    public int pointsReward;
+    public int pointsTotal;
+
     void Start()
     {
-        objectPrefab = Resources.Load("GridObject") as GameObject;
-        objectCount = 36;
+        instance = this;
+
+        objectPrefab = Resources.Load("Card Object") as GameObject;
 
         timerText.text = "Get ready";
-        timer = 60f;
 
-        for (int i = 0; i < objectCount; i++)
+        pointsGoal = objectCount * pointsReward / 2;
+
+        StartCoroutine(InstantiateGridObject(false));
+        StartCoroutine(InstantiateGridObject(true));
+
+        childObjects = contentObject.GetComponentsInChildren<GameObject>();
+
+        foreach (GameObject child in childObjects)
         {
-            waitTime += 0.1f;
-            StartCoroutine(InstantiateGridObject());
+            child.transform.SetSiblingIndex(UnityEngine.Random.Range(1, objectCount));
         }
     }
 
@@ -51,15 +74,81 @@ public class GameSystem : MonoBehaviour
         if (contentObject.transform.childCount == objectCount)
         {
             isTimer = true;
+            blockPanel.SetActive(false);
+        }
+
+        if (object1 && object2)
+        {
+            StartCoroutine(CheckObject());
+        }
+
+        GameOver();
+    }
+
+    private IEnumerator InstantiateGridObject(bool delay)
+    {
+        if (delay == true)
+        {
+            yield return new WaitForSeconds(0.1f + (0.1f * objectCount / 2));
+        }
+
+        for (int i = 0; i < objectCount / 2; i++)
+        {
+            yield return new WaitForSeconds(0.1f);
+
+            GameObject gridObject = Instantiate(objectPrefab, transform.position, Quaternion.identity) as GameObject;
+
+            gridObject.transform.SetParent(contentObject.transform, false);
+
+            gridObject.transform.Find("Card Front/Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>("Icons/CardIcon_" + (1 + i));
+
+            gridObject.transform.Rotate(0, 0, UnityEngine.Random.Range(-15, 15));
+
+            gridObject.name = "Card Object_" + (1 + i);
+            gridObject.GetComponent<Card>().iD = 1 + i;
         }
     }
 
-    private IEnumerator InstantiateGridObject()
+    public IEnumerator CheckObject()
     {
-        yield return new WaitForSeconds(0.1f + waitTime);
+        yield return new WaitForSeconds(1f);
 
-        GameObject gridObject = Instantiate(objectPrefab, transform.position, Quaternion.identity) as GameObject;
-        gridObject.transform.SetParent(contentObject, false);
+        if (object1 == null)
+        {
+            yield break;
+        }
+
+        if (object1.GetComponent<Card>().iD == object2.GetComponent<Card>().iD)
+        {
+            Destroy(object1);
+            Destroy(object2);
+
+            pointsTotal += pointsReward;
+        }
+        else if (object1.GetComponent<Card>().iD != object2.GetComponent<Card>().iD)
+        {
+            object1.GetComponent<Card>().GameSystemHideCard();
+            object2.GetComponent<Card>().GameSystemHideCard();
+        }
+
+        object1 = null;
+        object2 = null;
+    }
+
+    public void GameOver()
+    {
+        if (pointsTotal == pointsGoal)
+        {
+            winPanel.SetActive(true);
+            isTimer = false;
+            timerText.text = "Game Over!";
+        }
+        else if (timer == 0)
+        {
+            losePanel.SetActive(true);
+            isTimer = false;
+            timerText.text = "Game Over!";
+        }
     }
 
     void DisplayTime(float timeDisplay)
