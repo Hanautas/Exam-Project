@@ -8,11 +8,10 @@ public class GameSystem : MonoBehaviour
     public static GameSystem instance;
 
     [Header ("Game")]
-    public GameObject contentObject;
+    public Transform contentObject;
+    public GridLayoutGroup gridLayoutGroup;
     private GameObject objectPrefab;
     public int objectCount;
-
-    public GameObject[] childObjects;
 
     public GameObject object1;
     public GameObject object2;
@@ -20,6 +19,7 @@ public class GameSystem : MonoBehaviour
     public GameObject blockPanel;
 
     [Header ("Game Over")]
+    public bool gameOver;
     public GameObject winPanel;
     public GameObject losePanel;
 
@@ -45,13 +45,6 @@ public class GameSystem : MonoBehaviour
 
         StartCoroutine(InstantiateGridObject(false));
         StartCoroutine(InstantiateGridObject(true));
-
-        childObjects = contentObject.GetComponentsInChildren<GameObject>();
-
-        foreach (GameObject child in childObjects)
-        {
-            child.transform.SetSiblingIndex(UnityEngine.Random.Range(1, objectCount));
-        }
     }
 
     void Update()
@@ -71,10 +64,17 @@ public class GameSystem : MonoBehaviour
             }
         }
 
-        if (contentObject.transform.childCount == objectCount)
+        if (contentObject.transform.childCount == objectCount && isTimer == false)
         {
-            isTimer = true;
             blockPanel.SetActive(false);
+            gridLayoutGroup.enabled = false;
+
+            foreach (Transform child in contentObject)
+            {
+                child.transform.SetSiblingIndex(UnityEngine.Random.Range(1, objectCount));
+            }
+
+            isTimer = true;
         }
 
         if (object1 && object2)
@@ -98,7 +98,7 @@ public class GameSystem : MonoBehaviour
 
             GameObject gridObject = Instantiate(objectPrefab, transform.position, Quaternion.identity) as GameObject;
 
-            gridObject.transform.SetParent(contentObject.transform, false);
+            gridObject.transform.SetParent(contentObject, false);
 
             gridObject.transform.Find("Card Front/Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>("Icons/CardIcon_" + (1 + i));
 
@@ -137,6 +137,8 @@ public class GameSystem : MonoBehaviour
 
     public void GameOver()
     {
+        gameOver = true;
+
         if (pointsTotal == pointsGoal)
         {
             winPanel.SetActive(true);

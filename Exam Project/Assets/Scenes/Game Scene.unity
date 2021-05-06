@@ -450,7 +450,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1235037086}
-  m_RootOrder: 4
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -475,8 +475,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -660,11 +660,11 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
-  - {fileID: 1476639028}
   - {fileID: 1962251964}
+  - {fileID: 663538822}
   - {fileID: 1824549382}
   - {fileID: 487325643}
-  - {fileID: 663538822}
+  - {fileID: 1476639028}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -770,7 +770,7 @@ RectTransform:
   m_Children:
   - {fileID: 532817043}
   m_Father: {fileID: 1235037086}
-  m_RootOrder: 0
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -842,11 +842,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75ab7bc2ace20d545b2e9e0027d81efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  contentObject: {fileID: 532817042}
+  contentObject: {fileID: 532817043}
+  gridLayoutGroup: {fileID: 532817044}
   objectCount: 36
   object1: {fileID: 0}
   object2: {fileID: 0}
   blockPanel: {fileID: 663538821}
+  gameOver: 0
   winPanel: {fileID: 1824549381}
   losePanel: {fileID: 487325642}
   timerText: {fileID: 716201612}
@@ -973,7 +975,7 @@ RectTransform:
   m_Children:
   - {fileID: 534078636}
   m_Father: {fileID: 1235037086}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
