@@ -751,7 +751,7 @@ GameObject:
   - component: {fileID: 1476639030}
   - component: {fileID: 1476639029}
   m_Layer: 5
-  m_Name: Game Background
+  m_Name: Game Table
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -844,16 +844,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   contentObject: {fileID: 532817043}
   gridLayoutGroup: {fileID: 532817044}
+  blockPanel: {fileID: 663538821}
   objectCount: 36
+  objectInt: 
+  gameStart: 0
   object1: {fileID: 0}
   object2: {fileID: 0}
-  blockPanel: {fileID: 663538821}
   gameOver: 0
   winPanel: {fileID: 1824549381}
   losePanel: {fileID: 487325642}
   timerText: {fileID: 716201612}
   isTimer: 0
-  timer: 120
+  timer: 300
   pointsGoal: 0
   pointsReward: 5
   pointsTotal: 0
@@ -956,7 +958,7 @@ GameObject:
   - component: {fileID: 1962251966}
   - component: {fileID: 1962251965}
   m_Layer: 5
-  m_Name: Timer Panel
+  m_Name: Side Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

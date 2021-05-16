@@ -10,13 +10,18 @@ public class GameSystem : MonoBehaviour
     [Header ("Game")]
     public Transform contentObject;
     public GridLayoutGroup gridLayoutGroup;
+    public GameObject blockPanel;
+
     private GameObject objectPrefab;
     public int objectCount;
 
+    private List<Component> objectArray;
+    public int[] objectInt;
+
+    public bool gameStart;
+
     public GameObject object1;
     public GameObject object2;
-
-    public GameObject blockPanel;
 
     [Header ("Game Over")]
     public bool gameOver;
@@ -45,10 +50,23 @@ public class GameSystem : MonoBehaviour
 
         StartCoroutine(InstantiateGridObject(false));
         StartCoroutine(InstantiateGridObject(true));
+
+        objectInt = new int[objectCount];
+
+        for (int i = 0; i < objectCount; i++)
+        {
+            objectInt[i] = i;
+
+            int r = UnityEngine.Random.Range(0, objectCount);
+            int tempObjectInt = objectInt[r];
+            objectInt[r] = objectInt[i];
+            objectInt[i] = tempObjectInt;
+        }
     }
 
     void Update()
     {
+        // Start timer
         if (isTimer)
         {
             if (timer > 0)
@@ -64,25 +82,44 @@ public class GameSystem : MonoBehaviour
             }
         }
 
-        if (contentObject.transform.childCount == objectCount && isTimer == false)
+        // Randomize object hierarchy
+        if (contentObject.transform.childCount == objectCount && gameStart == false)
         {
-            blockPanel.SetActive(false);
-            gridLayoutGroup.enabled = false;
+            gameStart = true;
 
-            foreach (Transform child in contentObject)
-            {
-                child.transform.SetSiblingIndex(UnityEngine.Random.Range(1, objectCount));
-            }
-
-            isTimer = true;
+            StartCoroutine(GameStart());
         }
 
+        // Check if objects match
         if (object1 && object2)
         {
             StartCoroutine(CheckObject());
         }
 
         GameOver();
+    }
+
+    private IEnumerator GameStart()
+    {
+        objectArray = new List<Component>();
+
+        foreach (Transform go in contentObject.transform)
+        {
+            Component c = go.gameObject.GetComponent<Component>();
+            objectArray.Add(c);
+        }
+
+        for (int i = 0; i < objectCount - 1; i++)
+        {
+            objectArray[i + 1].transform.SetSiblingIndex(objectInt[i]);
+        }
+
+        yield return new WaitForSeconds(1f);
+
+        blockPanel.SetActive(false);
+        gridLayoutGroup.enabled = false;
+
+        isTimer = true;
     }
 
     private IEnumerator InstantiateGridObject(bool delay)
