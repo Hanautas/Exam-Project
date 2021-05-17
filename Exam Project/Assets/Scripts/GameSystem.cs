@@ -15,13 +15,13 @@ public class GameSystem : MonoBehaviour
     private GameObject objectPrefab;
     public int objectCount;
 
-    private List<Component> objectArray;
-    public int[] objectInt;
-
     public bool gameStart;
 
     public GameObject object1;
     public GameObject object2;
+
+    public Image previousObject1;
+    public Image previousObject2;
 
     [Header ("Game Over")]
     public bool gameOver;
@@ -34,6 +34,7 @@ public class GameSystem : MonoBehaviour
     public float timer;
 
     [Header ("Points")]
+    public Text pointsText;
     public int pointsGoal;
     public int pointsReward;
     public int pointsTotal;
@@ -50,18 +51,6 @@ public class GameSystem : MonoBehaviour
 
         StartCoroutine(InstantiateGridObject(false));
         StartCoroutine(InstantiateGridObject(true));
-
-        objectInt = new int[objectCount];
-
-        for (int i = 0; i < objectCount; i++)
-        {
-            objectInt[i] = i;
-
-            int r = UnityEngine.Random.Range(0, objectCount);
-            int tempObjectInt = objectInt[r];
-            objectInt[r] = objectInt[i];
-            objectInt[i] = tempObjectInt;
-        }
     }
 
     void Update()
@@ -82,6 +71,11 @@ public class GameSystem : MonoBehaviour
             }
         }
 
+        if (timer <= 59)
+        {
+            timerText.color = new Color32(255, 0, 0, 255);
+        }
+
         // Randomize object hierarchy
         if (contentObject.transform.childCount == objectCount && gameStart == false)
         {
@@ -96,22 +90,16 @@ public class GameSystem : MonoBehaviour
             StartCoroutine(CheckObject());
         }
 
+        pointsText.text = "Points: " + pointsTotal.ToString();
+
         GameOver();
     }
 
     private IEnumerator GameStart()
     {
-        objectArray = new List<Component>();
-
-        foreach (Transform go in contentObject.transform)
+        foreach (Transform obj in contentObject)
         {
-            Component c = go.gameObject.GetComponent<Component>();
-            objectArray.Add(c);
-        }
-
-        for (int i = 0; i < objectCount - 1; i++)
-        {
-            objectArray[i + 1].transform.SetSiblingIndex(objectInt[i]);
+            obj.transform.SetSiblingIndex(UnityEngine.Random.Range(0, objectCount));
         }
 
         yield return new WaitForSeconds(1f);
@@ -135,7 +123,7 @@ public class GameSystem : MonoBehaviour
 
             GameObject gridObject = Instantiate(objectPrefab, transform.position, Quaternion.identity) as GameObject;
 
-            gridObject.transform.SetParent(contentObject, false);
+            gridObject.transform.SetParent(contentObject.transform, false);
 
             gridObject.transform.Find("Card Front/Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>("Icons/CardIcon_" + (1 + i));
 
@@ -150,7 +138,7 @@ public class GameSystem : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
-        if (object1 == null)
+        if (object1 == null || object2 == null)
         {
             yield break;
         }
@@ -162,11 +150,15 @@ public class GameSystem : MonoBehaviour
 
             pointsTotal += pointsReward;
         }
-        else if (object1.GetComponent<Card>().iD != object2.GetComponent<Card>().iD)
+        
+        if (object1.GetComponent<Card>().iD != object2.GetComponent<Card>().iD)
         {
             object1.GetComponent<Card>().GameSystemHideCard();
             object2.GetComponent<Card>().GameSystemHideCard();
         }
+
+        previousObject1.sprite = object1.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
+        previousObject2.sprite = object2.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
 
         object1 = null;
         object2 = null;
@@ -187,6 +179,11 @@ public class GameSystem : MonoBehaviour
             losePanel.SetActive(true);
             isTimer = false;
             timerText.text = "Game Over!";
+
+            foreach (Transform obj in contentObject)
+            {
+                obj.GetComponent<Card>().animator.SetBool("Flip Card", true);
+            }
         }
     }
 
