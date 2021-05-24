@@ -15,6 +15,10 @@ public class GameSystem : MonoBehaviour
     private GameObject objectPrefab;
     public int objectCount;
 
+    public GameObject textCanvas;
+    public GameObject textPrefab;
+    public bool displayText;
+
     public bool gameStart;
 
     public GameObject object1;
@@ -32,6 +36,10 @@ public class GameSystem : MonoBehaviour
     public Text timerText;
     public bool isTimer;
     public float timer;
+
+    [Header ("Audio")]
+    public AudioSource audioSource;
+    public AudioClip soundEffect;
 
     [Header ("Points")]
     public Text pointsText;
@@ -88,6 +96,18 @@ public class GameSystem : MonoBehaviour
         if (object1 && object2)
         {
             StartCoroutine(CheckObject());
+
+            if (object1.GetComponent<Card>().iD == object2.GetComponent<Card>().iD && displayText == true)
+            {
+                StartCoroutine(DisplayText(Camera.main.ScreenToWorldPoint(Input.mousePosition), "Correct!", new Color32(255, 0, 0, 255)));
+                displayText = false;
+            }
+
+            if (object1.GetComponent<Card>().iD != object2.GetComponent<Card>().iD && displayText == true)
+            {
+                StartCoroutine(DisplayText(Camera.main.ScreenToWorldPoint(Input.mousePosition), "Wrong!", new Color32(255, 0, 0, 255)));
+                displayText = false;
+            }
         }
 
         pointsText.text = "Points: " + pointsTotal.ToString();
@@ -124,9 +144,7 @@ public class GameSystem : MonoBehaviour
             GameObject gridObject = Instantiate(objectPrefab, transform.position, Quaternion.identity) as GameObject;
 
             gridObject.transform.SetParent(contentObject.transform, false);
-
             gridObject.transform.Find("Card Front/Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>("Icons/CardIcon_" + (1 + i));
-
             gridObject.transform.Rotate(0, 0, UnityEngine.Random.Range(-15, 15));
 
             gridObject.name = "Card Object_" + (1 + i);
@@ -145,20 +163,28 @@ public class GameSystem : MonoBehaviour
 
         if (object1.GetComponent<Card>().iD == object2.GetComponent<Card>().iD)
         {
-            Destroy(object1);
-            Destroy(object2);
+            Vector3 movedObjectPosition = new Vector3(UnityEngine.Random.Range(6, 9), UnityEngine.Random.Range(-4, 4), 0);
+            object1.gameObject.transform.position = movedObjectPosition + new Vector3(0, 0.5f, 0);
+            object2.gameObject.transform.position = movedObjectPosition + new Vector3(0, 0.5f, 0);
+
+            previousObject1.sprite = null;
+            previousObject2.sprite = null;
 
             pointsTotal += pointsReward;
+
+            audioSource.PlayOneShot(soundEffect, 1f);
         }
         
         if (object1.GetComponent<Card>().iD != object2.GetComponent<Card>().iD)
         {
             object1.GetComponent<Card>().GameSystemHideCard();
             object2.GetComponent<Card>().GameSystemHideCard();
-        }
 
-        previousObject1.sprite = object1.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
-        previousObject2.sprite = object2.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
+            previousObject1.sprite = object1.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
+            previousObject2.sprite = object2.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
+
+            audioSource.PlayOneShot(soundEffect, 1f);
+        }
 
         object1 = null;
         object2 = null;
@@ -170,14 +196,16 @@ public class GameSystem : MonoBehaviour
 
         if (pointsTotal == pointsGoal)
         {
-            winPanel.SetActive(true);
             isTimer = false;
-            timerText.text = "Game Over!";
+            winPanel.SetActive(true);
+            timerText.text = "You win!";
+
+            pointsTotal += (int)timer;
         }
         else if (timer == 0)
         {
-            losePanel.SetActive(true);
             isTimer = false;
+            losePanel.SetActive(true);
             timerText.text = "Game Over!";
 
             foreach (Transform obj in contentObject)
@@ -187,7 +215,7 @@ public class GameSystem : MonoBehaviour
         }
     }
 
-    void DisplayTime(float timeDisplay)
+    private void DisplayTime(float timeDisplay)
     {
         timeDisplay += 1;
 
@@ -195,5 +223,25 @@ public class GameSystem : MonoBehaviour
         float seconds = Mathf.FloorToInt(timeDisplay % 60);
 
         timerText.text = "Time: " + string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+
+    public IEnumerator DisplayText(Vector3 textPosition, string textMessage, Color32 textColor)
+    {
+        yield return new WaitForSeconds(1f);
+
+        GameObject textObject = Instantiate(textPrefab, transform.position, Quaternion.identity) as GameObject;
+        
+        textObject.transform.SetParent(textCanvas.transform, false);
+        
+        Text textComponent = textObject.GetComponent<Text>();
+
+        textComponent.text = textMessage;
+        textPosition.z = 0;
+        textObject.transform.position = textPosition;
+        textComponent.color = textColor;
+
+        yield return new WaitForSeconds(1f);
+
+        Destroy(textObject);
     }
 }
