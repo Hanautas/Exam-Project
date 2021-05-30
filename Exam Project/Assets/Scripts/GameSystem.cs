@@ -145,6 +145,7 @@ public class GameSystem : MonoBehaviour
 
             gridObject.transform.SetParent(contentObject.transform, false);
             gridObject.transform.Find("Card Front/Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>("Icons/CardIcon_" + (1 + i));
+            gridObject.transform.Find("Card Front/Icon Outline").GetComponent<Image>().sprite = Resources.Load<Sprite>("Icons/CardIcon_" + (1 + i));
             gridObject.transform.Rotate(0, 0, UnityEngine.Random.Range(-15, 15));
 
             gridObject.name = "Card Object_" + (1 + i);
