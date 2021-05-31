@@ -24,8 +24,13 @@ public class GameSystem : MonoBehaviour
     public GameObject object1;
     public GameObject object2;
 
-    public Image previousObject1;
-    public Image previousObject2;
+    public GameObject previousObject1;
+    private Image objectOutline1;
+    private Image objectSprite1;
+
+    public GameObject previousObject2;
+    private Image objectOutline2;
+    private Image objectSprite2;
 
     [Header ("Game Over")]
     public bool gameOver;
@@ -59,6 +64,12 @@ public class GameSystem : MonoBehaviour
 
         StartCoroutine(InstantiateGridObject(false));
         StartCoroutine(InstantiateGridObject(true));
+
+        objectOutline1 = previousObject1.transform.Find("Object Outline").GetComponent<Image>();
+        objectSprite1 = previousObject1.transform.Find("Object Sprite").GetComponent<Image>();
+        
+        objectOutline2 = previousObject2.transform.Find("Object Outline").GetComponent<Image>();
+        objectSprite2 = previousObject2.transform.Find("Object Sprite").GetComponent<Image>();
     }
 
     void Update()
@@ -168,8 +179,11 @@ public class GameSystem : MonoBehaviour
             object1.gameObject.transform.position = movedObjectPosition + new Vector3(0, 0.5f, 0);
             object2.gameObject.transform.position = movedObjectPosition + new Vector3(0, 0.5f, 0);
 
-            previousObject1.sprite = null;
-            previousObject2.sprite = null;
+            objectOutline1.sprite = null;
+            objectSprite1.sprite = null;
+
+            objectOutline2.sprite = null;
+            objectSprite2.sprite = null;
 
             pointsTotal += pointsReward;
 
@@ -181,8 +195,11 @@ public class GameSystem : MonoBehaviour
             object1.GetComponent<Card>().GameSystemHideCard();
             object2.GetComponent<Card>().GameSystemHideCard();
 
-            previousObject1.sprite = object1.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
-            previousObject2.sprite = object2.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
+            objectOutline1.sprite = object1.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
+            objectSprite1.sprite = object1.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
+            
+            objectOutline2.sprite = object2.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
+            objectSprite2.sprite = object2.transform.Find("Card Front/Icon").GetComponent<Image>().sprite;
 
             audioSource.PlayOneShot(soundEffect, 1f);
         }
